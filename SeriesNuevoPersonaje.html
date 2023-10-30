@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Hospitales</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/sweetalert2.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="SeriesIndex.html"><img src="images/logoStrangerThings.png" style="max-width: 50px;"></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" 
+                href="SeriesIndex.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="SeriesNuevoPersonaje.html">
+                    Nuevo personaje
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="SeriesModificarPersonajes.html">
+                    Modificar personaje
+                </a>
+              </li>
+ 
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Series
+                </a>
+                <ul class="dropdown-menu" id="series">
+
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>   
+      <main>
+        <div class="m-5">
+            <h1>Nuevo Personaje</h1>
+            <form>
+                <label>Nombre</label>
+                <input type="text" class="form-control" id="cajaNombre"/>
+                <label>Imagen</label>
+                <input type="text" class="form-control" id="cajaImagen"/>
+                <label>Serie</label>
+                <select  id="selectSerie" class="form-control"></select>
+                
+                <button type="button" class="btn btn-info" id="botoninsert">Insertar personaje</button>
+            </form>
+        </div>
+      </main>
+
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/sweetalert2.min.js"></script>
+    <script>
+        var urlSeries = "https://apiseriespersonajes.azurewebsites.net/";
+        $(document).ready(function() {
+            loadOptionsSerie()
+            loadSelectSerie()
+            $("#botoninsert").click(function() {
+                var idPersonaje = 7
+                var Nombre = $('#cajaNombre').val()
+                var Imagen= $('#cajaImagen').val()
+                var idSerie= parseInt($('#selectSerie').val())
+                var request ="api/Personajes/"
+                console.log(request)
+                var personaje = new Object()
+                personaje.idPersonaje =7
+                personaje.nombre = Nombre
+                personaje.imagen= Imagen
+                personaje.idSerie = idSerie
+                var personajeJSON = JSON.stringify(personaje)
+                console.log(personajeJSON)
+                console.log(urlSeries+request)
+                $.ajax({
+                "url": urlSeries+request,
+                "type": "PUT",
+                "contentType": "application/json", 
+                "data": personajeJSON, 
+                success:function(){
+                    console.log("insertado")
+                    window.location.href = "SeriesVerPersonaje.html?serie="+personaje.idSerie
+                }
+                })
+            })
+        })
+        function loadOptionsSerie(){
+          var request = "api/Series"
+          $.ajax({
+                "url": urlSeries + request,
+                "type": "GET",
+                "dataType": "json",
+                success: function(data){
+                    var html = "";
+                    $.each(data, function(index, serie){
+                      console.log(serie)
+                      urlserie = "SeriesVerSerie.html?serie="+serie.idSerie
+                      html += "<li>";
+                      html += "<a class='dropdown-item' href='"+urlserie+"'>"+serie.nombre+"</a>";
+                      html += "</li>";
+             
+                    })
+                    $("#series").html(html);
+                }
+            }) 
+         
+        }
+        function loadSelectSerie(){
+          var request = "api/Series"
+          $.ajax({
+                "url": urlSeries + request,
+                "type": "GET",
+                "dataType": "json",
+                success: function(data){
+                    var html = "";
+                    $.each(data, function(index, serie){
+                      console.log(serie) 
+                      html += "<option value='"+serie.idSerie+"'>"+serie.nombre+"</option>";
+                    })
+                    $("#selectSerie").html(html);
+                }
+            }) 
+         
+        }
+    </script>
+</body>
+</html>
